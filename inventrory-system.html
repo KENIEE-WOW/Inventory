@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>StockWise | Smart Inventory Management and Monitoring System</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.css" integrity="sha512-x9WwyMYBnlXMNQ6kQ/Lyzu1NqIhLQKL5Oq6xByfXuRj7s9CskyCbLv/1IjqzJmXwFXWr0ov6jBV7Qbc0hh9nHg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+
+<body>
+
+  <div id="login" class="login">
+    <div class="login-card">
+      <div class="brand">
+        <div class="logo"><img id="logo1" src="logo.png" alt=""></div>
+        <h1>StockWise</h1>
+        <p>Smart Inventory Management <br> and Monitoring System</p>
+      </div>
+      <div id="loginPanel">
+        <form id="loginForm"><label class="field"><span>Username</span><input id="loginUser" class="input" required
+              autocomplete="username" placeholder="Enter username"></label><label class="field"><span>Password</span>
+            <div class="password-wrap"><input id="loginPass" type="password" class="input" required
+                autocomplete="current-password" placeholder="Enter password"><button type="button" class="show-pass"
+                onclick="togglePassword('loginPass',this)">Show</button></div>
+          </label>
+          <div id="loginError" class="notice hidden"></div><button class="btn primary block" style="margin-top:12px">
+            Sign In</button>
+        </form>
+        <div class="login-switch">Don't have an account? <button type="button" onclick="showRegister()">Create
+            Account</button></div>
+       
+      </div>
+      <div id="registerPanel" class="hidden">
+        <form id="registerForm">
+          <label class="field"><span>Full Name *</span><input id="regName" class="input" required
+              placeholder="Enter your full name"></label><label class="field"><span>Username *</span><input id="regUser"
+              class="input" required placeholder="Choose a username"></label><label class="field"><span>Email
+              Address</span><input id="regEmail" type="email" class="input" placeholder="Optional"></label><label
+            class="field"><span>Password *</span><input id="regPass" type="password" class="input" required
+              minlength="6" placeholder="At least 6 characters"></label><label class="field"><span>Confirm Password
+              *</span><input id="regConfirm" type="password" class="input" required minlength="6"
+              placeholder="Re-enter your password"></label>
+          <div class="notice">New accounts are created as <b>Staff</b>. Only an Administrator can grant Administrator
+            access.</div>
+          <div id="registerError" class="notice hidden" style="margin-top:10px"></div><button class="btn primary block"
+            style="margin-top:12px">✓ Create Account</button>
+        </form>
+        <div class="login-switch">Already have an account? <button type="button" onclick="showLogin()">Back to
+            Login</button></div>
+      </div>
+    </div>
+  </div>
+  <div id="app" class="app hidden">
+    <aside id="sidebar" class="sidebar">
+      <div class="side-brand">
+        <div class="logo"><img src="Logo.png" alt=" " width="50" height="50"></div>
+        <div><strong>StockWise</strong><small>Management System</small></div>
+      </div>
+      <nav class="nav">
+        <button class="active" data-page="dashboard"><i class="fa-solid fa-house-user"></i> Dashboard</button>
+        <button data-page="products"><i class="fa-solid fa-box-archive"></i> Products</button>
+        <button data-page="inventory"><i class="fa-solid fa-arrows-up-down-left-right"></i> Stock Movement</button>
+        <button data-page="history"><i class="fa-solid fa-message"></i> Transactions</button>
+        <button data-page="reports"><i class="fa-solid fa-file"></i> Reports</button>
+        <button data-page="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+      </nav>
+      <div class="side-bottom"><button id="logout" class="btn danger block"><i class="fa-solid fa-power-off"></i> Logout</button></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar"><button id="menu" class="menu">☰</button>
+        <h2 id="pageTitle">Dashboard</h2><span class="user" id="userChip"><i class="fa-solid fa-user"></i> Admin</span>
+      </header>
+      <div class="content">
+
+        <section id="dashboard" class="page">
+          <div class="page-head">
+            <div>
+              <h3>Dashboard</h3>
+              <p>Overview of your inventory and recent business activity.</p>
+            </div>
+            <div class="actions"><button class="btn secondary" onclick="go('inventory')"><i class="fa-solid fa-arrows-up-down-left-right"></i> Stock
+                Movement</button><button class="btn primary" onclick="openProduct()">＋ Add Product</button></div>
+          </div>
+          <div class="cards">
+            <div class="stat">
+              <div class="stat-icon"><i id="TotalProducts" class="fa-solid fa-box-archive"></i></div>
+              <div><strong id="sProducts">0</strong><span>Total Products</span></div>
+            </div>
+            <div class="stat">
+              <div class="stat-icon"><i class="fa-solid fa-sliders"></i></div>
+              <div><strong id="sStock">0</strong><span>Total Units</span></div>
+            </div>
+            <div class="stat">
+              <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation" id="LowStock"></i></div>
+              <div><strong id="sLow">0</strong><span>Low Stock</span></div>
+            </div>
+            <div class="stat">
+              <div class="stat-icon" id="OutOfStock"><i class="fa-solid fa-ban"></i></div>
+              <div><strong id="sOut">0</strong><span>Out of Stock</span></div>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="card">
+              <div class="card-head">
+                <h3>Inventory Value</h3><span class="muted">Current stock × price</span>
+              </div>
+              <div style="font-size:34px;font-weight:850" id="sValue">₱0.00</div>
+              <div class="bar"><i id="valueBar" style="width:0"></i></div>
+              <p class="muted">Use the Reports page for detailed valuation and movement summaries.</p>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <h3>Stock Health</h3>
+              </div>
+              <div class="kpis">
+                <div class="kpi"><b id="hHealthy">0</b><span>Healthy</span></div>
+                <div class="kpi"><b id="hLow">0</b><span>Low</span></div>
+                <div class="kpi"><b id="hOut">0</b><span>Out</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:16px">
+            <div class="card-head">
+              <h3>Recent Transactions</h3><button class="btn ghost" onclick="go('history')">View all →</button>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Product</th>
+                    <th>Action</th>
+                    <th>Qty</th>
+                    <th>User</th>
+                    <th>Note</th>
+                  </tr>
+                </thead>
+                <tbody id="recent"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="products" class="page hidden">
+          <div class="page-head">
+            <div>
+              <h3>Products</h3>
+              <p>Maintain your product catalog, pricing, stock levels and reorder points.</p>
+            </div><button class="btn primary" onclick="openProduct()">＋ Add Product</button>
+          </div>
+          <div class="card">
+            <div class="toolbar">
+              <div class="filters"><input id="productSearch" class="input search"
+                  placeholder=  " Search name, ID or category"><select id="productCat" class="input">
+                  <option value="">All categories</option>
+                </select><select id="productStatus" class="input">
+                  <option value="">All statuses</option>
+                  <option>Healthy</option>
+                  <option>Low Stock</option>
+                  <option>Out of Stock</option>
+                </select></div><span class="muted" id="productCount">0 products</span>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Reorder</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="productsBody"></tbody>
+              </table>
+            </div>
+            <div id="productsEmpty" class="empty hidden">No products match your search.</div>
+          </div>
+        </section>
+
+        <section id="inventory" class="page hidden">
+          <div class="page-head">
+            <div>
+              <h3>Stock Movement</h3>
+              <p>Record purchases, sales, returns, damaged items and manual adjustments.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="form-grid">
+              <label class="field"><span>Product *</span><select id="moveProduct" class="input"></select></label>
+              <label class="field"><span>Movement Type *</span><select id="moveType" class="input">
+                  <option value="IN">Stock In / Purchase</option>
+                  <option value="OUT">Stock Out / Sale</option>
+                  <option value="RETURN">Customer Return</option>
+                  <option value="DAMAGE">Damaged / Lost</option>
+                  <option value="ADJUST">Inventory Adjustment</option>
+                </select></label>
+              <label class="field"><span>Quantity *</span><input id="moveQty" class="input" type="number" min="1"
+                  step="1" required placeholder="0"></label>
+              <label class="field"><span>Reference / Note</span><input id="moveNote" class="input"
+                  placeholder="e.g. OR-1001, supplier, reason"></label>
+            </div>
+            <div class="modal-actions"><button class="btn primary" onclick="saveMovement()">Apply Movement</button>
+            </div>
+          </div>
+          <div class="card" style="margin-top:16px">
+            <div class="card-head">
+              <h3>Current Stock Levels</h3><span class="muted">Quick actions available</span>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Stock</th>
+                    <th>Reorder</th>
+                    <th>Status</th>
+                    <th>Quick Movement</th>
+                  </tr>
+                </thead>
+                <tbody id="stockBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="history" class="page hidden">
+          <div class="page-head">
+            <div>
+              <h3>Transaction History</h3>
+              <p>Complete audit trail of inventory movements and product changes.</p>
+            </div><button class="btn danger" onclick="clearHistory()">Clear History</button>
+          </div>
+          <div class="card">
+            <div class="toolbar">
+              <div class="filters"><input id="historySearch" class="input search"
+                  placeholder=" Search product, user or note"><select id="historyType" class="input">
+                  <option value="">All actions</option>
+                  <option>Stock In</option>
+                  <option>Stock Out</option>
+                  <option>Return</option>
+                  <option>Damage/Loss</option>
+                  <option>Adjustment</option>
+                  <option>Added</option>
+                  <option>Updated</option>
+                  <option>Deleted</option>
+                </select><input id="historyDate" type="date" class="input"></div><span class="muted" id="historyCount">0
+                entries</span>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Date & Time</th>
+                    <th>Product</th>
+                    <th>Action</th>
+                    <th>Qty</th>
+                    <th>Before</th>
+                    <th>After</th>
+                    <th>User</th>
+                    <th>Note</th>
+                  </tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="reports" class="page hidden">
+          <div class="page-head">
+            <div>
+              <h3>Reports & Analytics</h3>
+              <p>Generate a printable snapshot of your current inventory.</p>
+            </div>
+            <div class="actions"><button class="btn secondary" onclick="exportCSV()">⬇ Export CSV</button><button
+                class="btn primary" onclick="printReport()">🖨 Print Report</button></div>
+          </div>
+          <div class="card" id="report">
+            <div class="card-head">
+              <div>
+                <h3>StockWise — Inventory Report</h3>
+                <p class="muted" id="reportDate"></p>
+              </div>
+            </div>
+            <div class="kpis">
+              <div class="kpi"><b id="rProducts">0</b><span>Total Products</span></div>
+              <div class="kpi"><b id="rStock">0</b><span>Total Units</span></div>
+              <div class="kpi"><b id="rValue">₱0</b><span>Inventory Value</span></div>
+            </div>
+            <h3 style="margin-top:22px">Product Valuation</h3>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                    <th>Stock Value</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="reportBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="settings" class="page hidden">
+          <div class="page-head">
+            <div>
+              <h3>Settings</h3>
+              <p>Configure business information, defaults and data protection.</p>
+            </div>
+          </div>
+          <div class="settings">
+            <div class="card">
+              <div class="card-head">
+                <h3>Business Settings</h3>
+              </div>
+              <label class="field"><span>Business Name</span><input id="setName" class="input"></label>
+              <label class="field"><span>Currency</span><select id="setCurrency" class="input">
+                  <option value="₱">Philippine Peso (₱)</option>
+                  <option value="$">US Dollar ($)</option>
+                  <option value="₱">PHP (₱)</option>
+                </select></label>
+              <label class="field"><span>Default Reorder Level</span><input id="setReorder" class="input" type="number"
+                  min="0"></label>
+              <button class="btn primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <h3>Categories</h3>
+              </div>
+              <div class="filters"><input id="newCat" class="input" placeholder="New category"><button
+                  class="btn primary" onclick="addCategory()">Add</button></div>
+              <ul id="catList"></ul>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <h3><i class="fa-solid fa-users"></i> User Accounts</h3>
+              </div>
+              <p class="muted">Manage registered users. Only Administrators can change account roles.</p>
+              <div class="table-wrap">
+                <table class="table" style="min-width:0">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Email</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <h3>Data Backup</h3>
+              </div>
+              <p class="muted">Export your products, transactions, categories and settings to a JSON backup file. Import
+                it later on the same system.</p>
+              <div class="actions"><button class="btn secondary" onclick="backup()">⬇ Backup Data</button><label
+                  class="btn ghost">⬆ Import Backup<input id="restoreFile" type="file" accept=".json" hidden></label>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <h3>Account</h3>
+              </div>
+              <p class="muted">Logged in as <b id="settingsUser"></b>. Change the demo password below.</p><label
+                class="field"><span>New Password</span><input id="newPassword" type="password"
+                  class="input"></label><button class="btn primary" onclick="changePassword()">Update Password</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <div id="productModal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="modalTitle">Add Product</h3><button class="close" onclick="closeModal()">×</button>
+      </div>
+      <form id="productForm"><input id="editId" type="hidden">
+        <div class="form-grid">
+          <label class="field"><span>Product Name *</span><input id="pName" class="input" required
+              placeholder="e.g. Bond Paper A4"></label>
+          <label class="field"><span>Category *</span><select id="pCategory" class="input" required></select></label>
+          <label class="field"><span>Unit Price *</span><input id="pPrice" class="input" type="number" min="0"
+              step=".01" required></label>
+          <label class="field"><span>Quantity *</span><input id="pQty" class="input" type="number" min="0" step="1"
+              required></label>
+          <label class="field"><span>Reorder Level</span><input id="pReorder" class="input" type="number" min="0"
+              step="1"></label>
+          <label class="field"><span>Unit</span><select id="pUnit" class="input">
+              <option>pcs</option>
+              <option>box</option>
+              <option>pack</option>
+              <option>ream</option>
+              <option>set</option>
+              <option>kg</option>
+              <option>liter</option>
+            </select></label>
+          <label class="field full"><span>Description</span><textarea id="pDesc" class="input" rows="3"
+              placeholder="Optional product details"></textarea></label>
+        </div>
+        <div class="modal-actions"><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button><button
+            class="btn primary">Save Product</button></div>
+      </form>
+    </div>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+
+  <style>
+        :root {
+      --primary: #494ce6;
+      --primary2: #2563eb;
+      --bg: #f5f7fb;
+      --card: #fff;
+      --text: #172033;
+      --muted: #64748b;
+      --line: #e5e7eb;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --sidebar: #0f172a;
+      --shadow: 0 8px 30px rgba(15, 23, 42, .07)
+    }
+    #logo1{
+        width: 50px;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text)
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit
+    }
+
+    button {
+      cursor: pointer
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    .login {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #13488d, #85edd5)
+    }
+
+    .login-card {
+      width: min(420px, 100%);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 34px;
+      box-shadow: var(--shadow)
+    }
+
+    
+
+    .login .logo {
+      margin: auto;
+      width: 64px;
+      height: 64px;
+      font-size: 23px
+    }
+
+    .brand {
+      text-align: center
+    }
+
+    .brand h1 {
+      margin: 14px 0 5px;
+      font-size: 25px
+    }
+
+    .brand p {
+      margin: 0 0 25px;
+      color: var(--muted)
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin: 13px 0
+    }
+
+    .field span {
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .input {
+      width: 100%;
+      border: 1px solid #d8dee8;
+      border-radius: 10px;
+      padding: 11px 12px;
+      background: #fff;
+      outline: none
+    }
+
+    .input:focus {
+      border-color: var(--primary2);
+      box-shadow: 0 0 0 3px #dbeafe
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      transition: .15s
+    }
+
+    .btn:hover {
+      transform: translateY(-1px)
+    }
+
+    .primary {
+      background: var(--primary);
+      color: #fff
+    }
+
+    .secondary {
+      background: #eaf1ff;
+      color: #1746b8
+    }
+
+    .ghost {
+      background: #f1f5f9;
+      color: #334155
+    }
+
+    .danger {
+      background: #faf8f8;
+      color: red
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #047857
+    }
+
+    .block {
+      width: 100%;
+      padding: 13px
+    }
+
+    .hint {
+      margin-top: 18px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7
+    }
+
+    .login-switch {
+      text-align: center;
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    .login-switch button {
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      font-weight: 800;
+      padding: 0
+    }
+
+    .password-wrap {
+      position: relative
+    }
+
+    .password-wrap .input {
+      padding-right: 62px
+    }
+
+    .show-pass {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      height: 34px;
+      border: 0;
+      border-radius: 7px;
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 0 9px
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh
+    }
+
+    .sidebar {
+      width: 250px;
+      background: var(--sidebar);
+      color: #cbd5e1;
+      position: fixed;
+      inset: 0 auto 0 0;
+      padding: 20px 14px;
+      z-index: 20
+    }
+
+    .side-brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 4px 9px 24px;
+      color: #fff
+    }
+
+    .side-brand strong {
+      display: block;
+      font-size: 15px
+    }
+
+    .side-brand small {
+      color: #94a3b8
+    }
+
+    .nav {
+      display: grid;
+      gap: 5px
+    }
+
+    .nav button {
+      border: 0;
+      background: transparent;
+      color: #cbd5e1;
+      text-align: left;
+      padding: 12px 13px;
+      border-radius: 10px;
+      font-weight: 650
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      background: #1e293b;
+      color: #fff
+    }
+
+    .side-bottom {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 18px
+    }
+
+    .main {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      min-width: 0
+    }
+
+    .topbar {
+      height: 70px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 21px;
+      flex: 1
+    }
+
+    .user {
+      background: #eff6ff;
+      color: #1e40af;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .menu {
+      display: none
+    }
+
+    .content {
+      padding: 26px;
+      max-width: 1600px;
+      margin: auto
+    }
+
+    .page-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 20px
+    }
+
+    .page-head h3 {
+      margin: 0;
+      font-size: 22px
+    }
+
+    .page-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px
+    }
+
+    .stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      gap: 14px;
+      align-items: center
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      background: #eff6ff
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 25px
+    }
+
+    .stat span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 650
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 16px;
+      margin-top: 16px
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+      padding: 18px
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px
+    }
+
+    .card-head h3 {
+      margin: 0;
+      font-size: 16px
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    .table-wrap {
+      overflow: auto
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px
+    }
+
+    .table th,
+    .table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      font-size: 13px;
+      vertical-align: middle
+    }
+
+    .table th {
+      color: #64748b;
+      background: #f8fafc;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .04em
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800
+    }
+
+    .badge.ok {
+      background: #dcfce7;
+      color: #047857
+    }
+
+    .badge.low {
+      background: #fef3c7;
+      color: #b45309
+    }
+
+    .badge.out {
+      background: #fee2e2;
+      color: #b91c1c
+    }
+
+    .badge.info {
+      background: #dbeafe;
+      color: #1d4ed8
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px
+    }
+
+    .search {
+      max-width: 330px
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .empty {
+      text-align: center;
+      padding: 35px;
+      color: var(--muted)
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px 15px
+    }
+
+    .full {
+      grid-column: 1/-1
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .55);
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      z-index: 50
+    }
+
+    .modal-box {
+      background: #fff;
+      width: min(650px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, .2)
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px
+    }
+
+    .modal-head h3 {
+      margin: 0
+    }
+
+    .close {
+      border: 0;
+      background: #f1f5f9;
+      border-radius: 8px;
+      width: 34px;
+      height: 34px;
+      font-size: 20px
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 18px
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px
+    }
+
+    .kpi {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      padding: 15px;
+      border-radius: 12px
+    }
+
+    .kpi b {
+      display: block;
+      font-size: 22px
+    }
+
+    .kpi span {
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .bar {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 9px
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      background: var(--primary);
+      border-radius: 99px
+    }
+
+    .notice {
+      padding: 12px;
+      border-radius: 11px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      font-size: 13px
+    }
+
+    .settings {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 11px;
+      box-shadow: var(--shadow);
+      z-index: 100;
+      font-size: 13px
+    }
+
+    #OutOfStock{
+      color: red;
+    }
+
+    #LowStock{
+      color: orange;
+    }
+
+    #TotalProducts{
+      color: #871a1a;
+    }
+
+    @media(max-width:1050px) {
+      .cards {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .grid2 {
+        grid-template-columns: 1fr
+      }
+
+      .settings {
+        grid-template-columns: 1fr
+      }
+    }
+
+    @media(max-width:750px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: .2s
+      }
+
+      .sidebar.open {
+        transform: none
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%
+      }
+
+      .menu {
+        display: block;
+        border: 0;
+        background: #f1f5f9;
+        border-radius: 9px;
+        width: 38px;
+        height: 38px
+      }
+
+      .content {
+        padding: 18px
+      }
+
+      .cards {
+        grid-template-columns: 1fr
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr
+      }
+
+      .full {
+        grid-column: auto
+      }
+
+      .topbar {
+        padding: 0 16px
+      }
+
+      .user {
+        display: none
+      }
+    }
+
+     @media print {
+      body {
+        background: #fff
+      }
+
+      .sidebar,
+      .topbar,
+      .page-head,
+      .btn,
+      .toolbar {
+        display: none !important
+      }
+
+      .main {
+        margin: 0;
+        width: 100%
+      }
+
+      .content {
+        padding: 0
+      }
+
+      .page.hidden {
+        display: none !important
+      }
+
+      .page#reports {
+        display: block !important
+      }
+
+      .card {
+        box-shadow: none;
+        border: 0
+      }
+
+      .table {
+        min-width: 0
+      }
+
+      .table th,
+      .table td {
+        font-size: 10px
+      }
+    }
+
+  </style>
+
+  <script>
+    const KEY = 'g6_inventory_v3';
+
+    let db = JSON.parse(localStorage.getItem(KEY) || 'null');
+
+    if (!db) db = { settings: { 
+      name: 'StockWise', 
+      currency: '₱', 
+      reorder: 5 }, 
+      categories: ['Lumber & Wood',,'Steel & Metal','Roofing Materials','Plumbing Supplies','Electrical Supplies','Hand Tools','Power Tools','Fasteners','Paint & Finishing','Safety Equipment','Cement & Concrete','Construction Accessories',], 
+      products: [], 
+      history: [], 
+      users: { admin: { password: 'admin123', role: 'Administrator', name: 'System Administrator', email: '' }, staff: { password: 'staff123', role: 'Staff', name: 'Staff User', email: '' } } };
+
+    Object.entries(db.users || {}).forEach(([u, x]) => { x.role = x.role || 'Staff'; x.name = x.name || u; x.email = x.email || '' });
+
+    let session = null;
+
+    const $ = id => document.getElementById(id);
+    const save = () => localStorage.setItem(KEY, JSON.stringify(db));
+    const money = n => (db.settings.currency || '₱') + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m]));
+
+    function status(p) {
+      if (p.qty <= 0) return ['Out of Stock', 'out']; if (p.qty <= p.reorder) return ['Low Stock', 'low']; return ['Healthy', 'ok']
+    }
+
+    function dateNow() {
+      return new Date().toISOString()
+    }
+
+    function toast(msg) {
+      $('toast').textContent = msg;
+      $('toast').classList.remove('hidden');
+      setTimeout(() => $('toast').classList.add('hidden'), 2400)
+    }
+
+    function go(page) {
+      document.querySelectorAll('.page').forEach(x => x.classList.add('hidden'));
+      $(page).classList.remove('hidden');
+      document.querySelectorAll('.nav button').forEach(x => x.classList.toggle('active', x.dataset.page === page));
+      $('pageTitle').textContent = ({ dashboard: 'Dashboard', products: 'Products', inventory: 'Stock Movement', history: 'Transactions', reports: 'Reports', settings: 'Settings' })[page];
+      $('sidebar').classList.remove('open'); render()
+    }
+
+    function render() {
+      db.products.forEach(p => { if (p.reorder === undefined) p.reorder = Number(db.settings.reorder) || 5; if (!p.unit) p.unit = 'pcs' });
+      renderDashboard();
+      renderProducts();
+      renderMovement();
+      renderHistory();
+      renderReports();
+      renderSettings();
+      save();
+    }
+
+    function renderDashboard() {
+
+      const ps = db.products, total = ps.reduce((a, p) => a + Number(p.qty), 0), value = ps.reduce((a, p) => a + p.qty * p.price, 0), low = ps.filter(p => p.qty > 0 && p.qty <= p.reorder).length, out = ps.filter(p => p.qty <= 0).length;
+
+      $('sProducts').textContent = ps.length;
+      $('sStock').textContent = total;
+      $('sLow').textContent = low;
+      $('sOut').textContent = out;
+      $('sValue').textContent = money(value);
+      $('valueBar').style.width = (value ? Math.min(100, value / (Math.max(1, value) * 1) * 100) : 0) + '%';
+      $('hHealthy').textContent = ps.length - low - out; $('hLow').textContent = low; 
+      $('hOut').textContent = out;
+      $('recent').innerHTML = db.history.slice(0, 8).map(h => `<tr><td>${new Date(h.date).toLocaleString()}</td><td>${esc(h.product)}</td><td><span class="badge ${h.action.includes('Out') || h.action.includes('Damage') ? 'out' : h.action === 'Stock In' ? 'ok' : 'info'}">${esc(h.action)}</span></td><td>${h.qty || '—'}</td><td>${esc(h.user)}</td><td>${esc(h.note || '')}</td></tr>`).join('') || `<tr><td colspan="6" class="empty">No transactions yet.</td></tr>`;
+    }
+
+    function fillCategories() {
+      ['productCat', 'pCategory'].forEach(id => {
+        let el = $(id), old = el.value;
+        el.innerHTML = (id === 'productCat' ? '<option value="">All categories</option>' : '<option value="">Select category</option>') + db.categories.map(c => `<option>${esc(c)}</option>`).join('');
+        el.value = old
+      });
+    }
+
+    function renderProducts() {
+      fillCategories();
+      let q = ($('productSearch')?.value || '').toLowerCase(), cat = $('productCat')?.value || '', st = $('productStatus')?.value || '';
+      let list = db.products.filter(p => (!q || [p.id, p.name, p.category].join(' ').toLowerCase().includes(q)) && (!cat || p.category === cat) && (!st || status(p)[0] === st));
+
+      $('productCount').textContent = `${list.length} of ${db.products.length} products`;
+      $('productsBody').innerHTML = list.map(p => {
+        let s = status(p);
+        return `<tr><td><b>${esc(p.id)}</b></td><td><b>${esc(p.name)}</b><br><span class="muted">${esc(p.unit)}${p.description ? ' · ' + esc(p.description.slice(0, 45)) : ''}</span></td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td><b>${p.qty}</b></td><td>${p.reorder}</td><td><span class="badge ${s[1]}">${s[0]}</span></td><td><button class="btn ghost" onclick="openProduct('${p.id}')">Edit</button> <button class="btn danger" onclick="deleteProduct('${p.id}')">Delete</button></td></tr>`
+      }).join('');
+      $('productsEmpty').classList.toggle('hidden', !!list.length);
+    }
+
+    function renderMovement() {
+      $('moveProduct').innerHTML = db.products.length ? db.products.map(p => `<option value="${p.id}">${esc(p.name)} — ${p.qty} ${esc(p.unit)}</option>`).join('') : '<option value="">No products available</option>';
+
+      $('stockBody').innerHTML = db.products.map(p => {
+        let s = status(p);
+        return `<tr><td><b>${esc(p.name)}</b><br><span class="muted">${esc(p.id)}</span></td><td>${esc(p.category)}</td><td><b>${p.qty}</b> ${esc(p.unit)}</td><td>${p.reorder}</td><td><span class="badge ${s[1]}">${s[0]}</span></td><td><button class="btn success" onclick="quickMove('${p.id}','IN')">+ Add</button> <button class="btn danger" onclick="quickMove('${p.id}','OUT')">− Remove</button></td></tr>`
+      }).join('') || '<tr><td colspan="6" class="empty">Add a product first.</td></tr>';
+    }
+
+    function renderHistory() {
+      let q = ($('historySearch')?.value || '').toLowerCase(), t = $('historyType')?.value || '', d = $('historyDate')?.value || '';
+
+      let list = db.history.filter(h => (!q || [h.product, h.user, h.note, h.action].join(' ').toLowerCase().includes(q)) && (!t || h.action === t) && (!d || h.date.slice(0, 10) === d));
+
+      $('historyCount').textContent = `${list.length} entries`;
+
+      $('historyBody').innerHTML = list.map(h => `<tr><td>${new Date(h.date).toLocaleString()}</td><td>${esc(h.product)}<br><span class="muted">${esc(h.productId)}</span></td><td><span class="badge info">${esc(h.action)}</span></td><td>${h.qty || '—'}</td><td>${h.before ?? '—'}</td><td>${h.after ?? '—'}</td><td>${esc(h.user)}</td><td>${esc(h.note || '')}</td></tr>`).join('') || '<tr><td colspan="8" class="empty">No transactions found.</td></tr>';
+    }
+
+    function renderReports() {
+      let value = db.products.reduce((a, p) => a + p.qty * p.price, 0), stock = db.products.reduce((a, p) => a + p.qty, 0);
+
+      $('reportDate').textContent = 'Generated ' + new Date().toLocaleString();
+      $('rProducts').textContent = db.products.length;
+      $('rStock').textContent = stock;
+      $('rValue').textContent = money(value); 1
+      $('reportBody').innerHTML = db.products.map(p => { let s = status(p); return `<tr><td>${esc(p.id)}</td><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td>${p.qty}</td><td>${money(p.qty * p.price)}</td><td><span class="badge ${s[1]}">${s[0]}</span></td></tr>` }).join('') || '<tr><td colspan="7" class="empty">No products.</td></tr>';
+    }
+
+    function renderUsers() {
+      const body = $('usersBody');
+      if (!body) return; const admin = session?.role === 'Administrator';
+
+      body.innerHTML = Object.entries(db.users).map(([u, x]) => `<tr><td><b>${esc(x.name || u)}</b><br><span class="muted">@${esc(u)}</span></td><td>${admin && u !== session.user ? `<select class="input" onchange="changeRole('${esc(u)}',this.value)"><option ${x.role === 'Staff' ? 'selected' : ''}>Staff</option><option ${x.role === 'Administrator' ? 'selected' : ''}>Administrator</option></select>` : `<span class="badge ${x.role === 'Administrator' ? 'info' : 'ok'}">${esc(x.role)}</span>`}</td><td>${esc(x.email || '—')}</td><td>${admin && u !== session.user ? `<button class="btn danger" onclick="removeUser('${esc(u)}')">Remove</button>` : '<span class="muted">Current user</span>'}</td></tr>`).join('')
+    }
+
+    function renderSettings() {
+      $('setName').value = db.settings.name;
+      $('setCurrency').value = db.settings.currency;
+      $('setReorder').value = db.settings.reorder;
+      $('settingsUser').textContent = session ? session.user : '';
+      renderUsers();
+      $('catList').innerHTML = db.categories.map((c, i) => `<li style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)"><span>${esc(c)}</span><button class="btn danger" onclick="removeCategory(${i})">Remove</button></li>`).join('');
+    }
+
+    function openProduct(id = '') {
+      fillCategories();
+      let p = db.products.find(x => x.id === id);
+      $('editId').value = p?.id || '';
+      $('modalTitle').textContent = p ? 'Edit Product' : 'Add Product';
+      $('pName').value = p?.name || '';
+      $('pCategory').value = p?.category || db.categories[0] || '';
+      $('pPrice').value = p?.price ?? '';
+      $('pQty').value = p?.qty ?? 0;
+      $('pReorder').value = p?.reorder ?? db.settings.reorder; $('pUnit').value = p?.unit || 'pcs'; $('pDesc').value = p?.description || '';
+      $('productModal').classList.remove('hidden');
+      $('pName').focus()
+    }
+
+    function closeModal() {
+      $('productModal').classList.add('hidden')
+    }
+    $('productForm').addEventListener('submit', e => {
+      e.preventDefault();
+      let id = $('editId').value, p = { id: id || 'P-' + String(Date.now()).slice(-6), name: $('pName').value.trim(), category: $('pCategory').value, price: +$('pPrice').value, qty: +$('pQty').value, reorder: +$('pReorder').value || 0, unit: $('pUnit').value, description: $('pDesc').value.trim(), updated: dateNow() };
+
+      if (!p.name) return; if (id) { let i = db.products.findIndex(x => x.id === id), old = db.products[i]; db.products[i] = p; log('Updated', p, 0, old.qty, p.qty, 'Product details updated') } else {
+        p.created = dateNow();
+        db.products.push(p);
+        log('Added', p, p.qty, null, p.qty, 'New product added')
+      } save();
+      closeModal();
+      toast(id ? 'Product updated' : 'Product added successfully');
+      render()
+    });
+
+    function log(action, p, qty, before, after, note) {
+      db.history.unshift({ date: dateNow(), product: p.name, productId: p.id, action, qty, before, after, user: session?.user || 'System', note })
+    }
+
+    function deleteProduct(id) {
+      let p = db.products.find(x => x.id === id); if (!p) return;
+      if (!confirm(`Delete "${p.name}"? This action removes it from the active product list.`)) return;
+      log('Deleted', p, p.qty, p.qty, null, 'Product deleted');
+      db.products = db.products.filter(x => x.id !== id); save(); toast('Product deleted'); render()
+    }
+
+    function saveMovement() {
+      let id = $('moveProduct').value, type = $('moveType').value, qty = +$('moveQty').value, note = $('moveNote').value.trim(), p = db.products.find(x => x.id === id);
+      if (!p || qty < 1) {
+        toast('Select a product and enter a valid quantity.');
+        return
+      }
+
+      let before = p.qty, after = before;
+
+      if (type === 'IN' || type === 'RETURN') after += qty;
+      else if (type === 'OUT' || type === 'DAMAGE') after -= qty;
+      else {
+        let val = prompt(`Enter the new stock quantity for ${p.name}:`, before);
+        if (val === null) return; after = +val;
+        if (!Number.isInteger(after) || after < 0) { toast('Invalid stock quantity.'); return }
+      }
+      if (after < 0) {
+        toast('Not enough stock for this movement.');
+        return
+      }
+
+      let action = { IN: 'Stock In', OUT: 'Stock Out', RETURN: 'Return', DAMAGE: 'Damage/Loss', ADJUST: 'Adjustment' }[type];
+      p.qty = after;
+      log(action, p, qty, before, after, note || action); save();
+      $('moveQty').value = '';
+      $('moveNote').value = '';
+      toast(`${action} recorded`);
+      render()
+    }
+
+    function quickMove(id, type) {
+      $('moveProduct').value = id;
+      $('moveType').value = type;
+      go('inventory');
+      $('moveQty').focus()
+    }
+
+    function clearHistory() {
+      if (!db.history.length) return toast('History is already empty.');
+      if (!confirm('Clear all transaction history? Product data will remain.')) return;
+      db.history = [];
+      save();
+      toast('History cleared');
+      render()
+    }
+
+    function saveSettings() {
+      db.settings.name = $('setName').value.trim() || 'StockWise';
+      db.settings.currency = $('setCurrency').value;
+      db.settings.reorder = Math.max(0, +$('setReorder').value || 0);
+      document.title = db.settings.name + ' | Smart Inventory Management and Monitoring System';
+      save();
+      toast('Settings saved');
+      render()
+    }
+
+    function addCategory() {
+      let c = $('newCat').value.trim();
+      if (!c) return;
+      if (db.categories.some(x => x.toLowerCase() === c.toLowerCase())) return toast('Category already exists.');
+      db.categories.push(c);
+      $('newCat').value = '';
+      save();
+      toast('Category added');
+      render()
+    }
+
+    function removeCategory(i) {
+      let c = db.categories[i];
+      if (db.products.some(p => p.category === c)) return toast('Cannot remove a category that is in use.');
+      if (confirm(`Remove "${c}"?`)) {
+        db.categories.splice(i, 1);
+        save();
+        render()
+      }
+    }
+
+    function changePassword() {
+      let p = $('newPassword').value.trim();
+      if (p.length < 6) return toast('Password must be at least 6 characters.');
+      db.users[session.user].password = p; 
+      save();
+      $('newPassword').value = '';
+      toast('Password updated')
+    }
+
+    function togglePassword(id, btn) {
+      const x = $(id); 
+      x.type = x.type === 'password' ? 'text' : 'password';
+      btn.textContent = x.type === 'password' ? 'Show' : 'Hide'
+    }
+
+    function showRegister() {
+      $('loginPanel').classList.add('hidden');
+      $('registerPanel').classList.remove('hidden');
+      $('registerError').classList.add('hidden');
+      $('regName').focus()
+    }
+
+    function showLogin() {
+      $('registerPanel').classList.add('hidden');
+      $('loginPanel').classList.remove('hidden');
+      $('loginError').classList.add('hidden');
+      $('loginUser').focus()
+    }
+
+    $('registerForm').addEventListener('submit', e => {
+      e.preventDefault();
+      let name = $('regName').value.trim(), u = $('regUser').value.trim().toLowerCase(), email = $('regEmail').value.trim(), pw = $('regPass').value, cp = $('regConfirm').value, err = $('registerError'); err.classList.add('hidden');
+
+      if (!/^[a-z0-9._-]{3,30}$/.test(u)) return err.classList.remove('hidden'), err.textContent = 'Username must be 3–30 characters using letters, numbers, dots, underscores or hyphens.';
+      if (db.users[u]) return err.classList.remove('hidden'), err.textContent = 'That username is already registered.';
+      if (pw.length < 6) return err.classList.remove('hidden'), err.textContent = 'Password must be at least 6 characters.';
+      if (pw !== cp) return err.classList.remove('hidden'), err.textContent = 'Passwords do not match.';
+      db.users[u] = { password: pw, role: 'Staff', name, email }; save();
+      $('registerForm').reset();
+      $('loginUser').value = u;
+      showLogin();
+      toast('Account created. You can now sign in.')
+    });
+
+    function changeRole(u, role) {
+      if (session?.role !== 'Administrator') return toast('Administrator access required.');
+      if (!db.users[u]) return;
+      db.users[u].role = role;
+      save();
+      renderUsers();
+      toast(u + ' is now ' + role)
+    }
+
+    function removeUser(u) {
+      if (session?.role !== 'Administrator') return toast('Administrator access required.');
+      if (u === session.user) return toast('You cannot remove your own account.');
+      if (!confirm('Remove account "' + u + '"?')) return;
+      delete db.users[u];
+      save();
+      renderUsers();
+      toast('Account removed')
+    }
+
+    function backup() {
+      let blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' }), a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'StockWise-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click(); URL.revokeObjectURL(a.href)
+    }
+
+    $('restoreFile').addEventListener('change', e => {
+
+      let f = e.target.files[0];
+
+      if (!f) return; let r = new FileReader();
+
+      r.onload = () => {
+        try {
+          let x = JSON.parse(r.result);
+          if (!x.products || !x.history || !x.settings) throw Error();
+          if (confirm('Import this backup and replace current data?')) {
+            db = x;
+            save();
+            render();
+            toast('Backup imported successfully')
+          }
+        }
+        catch { toast('Invalid backup file.') }
+      }; r.readAsText(f); e.target.value = ''
+    });
+
+    function exportCSV() {
+      let rows = [['Product ID', 'Product Name', 'Category', 'Price', 'Quantity', 'Unit', 'Reorder Level', 'Status', 'Stock Value'], ...db.products.map(p => [p.id, p.name, p.category, p.price, p.qty, p.unit, p.reorder, status(p)[0], p.qty * p.price])];
+
+      let csv = rows.map(r => r.map(x => `"${String(x ?? '').replace(/"/g, '""')}"`).join(',')).join('\\n'), a = document.createElement('a'); 
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+      a.download = 'StockWise-report.csv';
+      a.click()
+    }
+
+    function printReport() {
+      go('reports'); setTimeout(() => window.print(), 100)
+    }
+
+    $('productSearch').addEventListener('input', renderProducts);
+    $('productCat').addEventListener('change', renderProducts); 
+    $('productStatus').addEventListener('change', renderProducts);
+    $('historySearch').addEventListener('input', renderHistory); 
+    $('historyType').addEventListener('change', renderHistory);
+    $('historyDate').addEventListener('change', renderHistory);
+
+    document.querySelectorAll('.nav button').forEach(b => b.addEventListener('click', () => go(b.dataset.page)));
+    $('menu').onclick = () =>
+      $('sidebar').classList.toggle('open');
+    $('logout').onclick = () => {
+      session = null;
+      $('app').classList.add('hidden');
+      $('login').classList.remove('hidden');
+      $('loginPass').value = '';
+      showLogin();
+    };
+    $('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+
+      let u = $('loginUser').value.trim(), p = $('loginPass').value, x = db.users[u];
+
+      if (!x || x.password !== p) {
+        $('loginError').textContent = 'Invalid username or password.';
+        $('loginError').classList.remove('hidden');
+        return
+      } session = { user: u, role: x.role };
+      $('loginError').classList.add('hidden');
+      $('login').classList.add('hidden');
+      $('app').classList.remove('hidden');
+      $('userChip').textContent = '👤 ' + u + ' · ' + x.role; go('dashboard')
+    });
+    document.title = db.settings.name + ' | Inventory Management & Monitoring System';
+  </script>
+
+  <style>
+
+  </style>
+</body>
+
+</html>
